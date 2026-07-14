@@ -27,11 +27,11 @@ FORMAT DE SORTIE — STRICT :
   "risque": "faible" | "moyen" | "eleve",
   "volume": "..."
 }
-- Analyse entre 25 et 50 tendances parmi les signaux fournis (fusionne les doublons entre sources si pertinent).`;
+- Analyse au maximum 25 tendances parmi les signaux fournis (fusionne les doublons entre sources si pertinent). Vise le meilleur compromis pertinence/rapidité : ne dépasse pas 25 même si plus de signaux sont fournis.`;
 
 function buildUserPrompt(signals: RawSignal[]): string {
   const lines = signals
-    .slice(0, 200)
+    .slice(0, 60)
     .map((s, i) => {
       const parts = [`${i + 1}. [${s.source}] ${s.titre}`];
       if (s.metrique) parts.push(`(${s.metrique})`);
@@ -49,7 +49,7 @@ export async function scoreTrends(signals: RawSignal[]): Promise<ScoredTrend[]> 
   const client = getAnthropicClient();
   const message = await client.messages.create({
     model: CLAUDE_MODEL,
-    max_tokens: 8000,
+    max_tokens: 4000,
     system: SYSTEM_PROMPT,
     messages: [{ role: "user", content: buildUserPrompt(signals) }],
   });

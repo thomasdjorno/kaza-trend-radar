@@ -73,11 +73,15 @@ Chaque source (`src/lib/sources/*.ts`) gère ses propres erreurs et retourne tou
 - Le bouton **Rafraîchir** dans l'UI force un nouvel appel (`?force=true`), donc un nouveau coût de scoring — à utiliser avec discernement.
 - Chaque analyse détaillée (`/api/trends/detail`) et chaque génération de prompts vidéo (`/api/trends/video-prompts`) est cachée **par tendance** (30 jours) : re-cliquer sur une tendance déjà consultée ne redéclenche pas d'appel IA.
 
-**Estimation de coût** (ordre de grandeur, `claude-sonnet-4-6`) : un scoring de 25-50 tendances consomme quelques milliers de tokens d'entrée/sortie, de l'ordre de quelques centimes par appel. Avec le cache de 3h, l'usage naturel (consultation dans la journée + un rafraîchissement manuel occasionnel) reste de l'ordre de **quelques dizaines de centimes par jour**. Pour limiter davantage : augmenter le TTL du cache dans `src/lib/cache.ts`, ou restreindre l'accès au bouton Rafraîchir.
+**Estimation de coût** (ordre de grandeur, `claude-sonnet-4-6`) : un scoring de 25 tendances max consomme quelques milliers de tokens d'entrée/sortie, de l'ordre de quelques centimes par appel. Avec le cache de 3h, l'usage naturel (consultation dans la journée + un rafraîchissement manuel occasionnel) reste de l'ordre de **quelques dizaines de centimes par jour**. Pour limiter davantage : augmenter le TTL du cache dans `src/lib/cache.ts`, ou restreindre l'accès au bouton Rafraîchir.
+
+### Limite de temps d'exécution sur Netlify
+
+Les fonctions serverless synchrones de Netlify ont une fenêtre de réponse d'environ 30 secondes (dépassement → 502). L'appel Claude pour le scoring peut s'en approcher selon le nombre de signaux collectés, d'où le plafond de 25 tendances analysées (au lieu de 50) et un `max_tokens` réduit dans `src/lib/ai/scoring.ts` — pensés pour rester sous cette limite sur Netlify. **Cette contrainte n'existe pas sur un VPS** (pm2/Node tourne sans limite de temps de requête), qui reste la cible recommandée pour un usage en production.
 
 ## Déploiement rapide sur Netlify (test interne)
 
-Pratique pour tester l'app en interne sans mettre en place le VPS tout de suite. L'URL Netlify reste protégée par le mot de passe de l'app (`APP_PASSWORD`), donc pas besoin de la partager largement.
+Pratique pour tester l'app en interne sans mettre en place le VPS tout de suite. L'URL Netlify reste protégée par le mot de passe de l'app (`APP_PASSWORD`), donc pas besoin de la partager largement. Attention : le scoring IA peut occasionnellement dépasser la limite de 30s de Netlify (voir ci-dessus) — sur le VPS de production, ce problème disparaît.
 
 1. Pousser le code sur un repo GitHub (privé de préférence).
 2. Sur [app.netlify.com](https://app.netlify.com) → **Add new site → Import an existing project** → choisir le repo. Netlify détecte Next.js automatiquement (`@netlify/plugin-nextjs`, déjà déclaré dans `netlify.toml`).
