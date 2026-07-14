@@ -1,26 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --kaza-cream: #f8f1e4;
+  --kaza-cream-deep: #f0e6d2;
+  --kaza-ink: #241c14;
+  --kaza-ink-soft: #5a4f40;
+  --kaza-rouge: #a8311f;
+  --kaza-ocre: #c98a2c;
+  --kaza-vert: #4a6b3a;
+  --kaza-terracotta: #bc5a34;
+  --kaza-line: #e2d5bd;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-kaza-cream: var(--kaza-cream);
+  --color-kaza-cream-deep: var(--kaza-cream-deep);
+  --color-kaza-ink: var(--kaza-ink);
+  --color-kaza-ink-soft: var(--kaza-ink-soft);
+  --color-kaza-rouge: var(--kaza-rouge);
+  --color-kaza-ocre: var(--kaza-ocre);
+  --color-kaza-vert: var(--kaza-vert);
+  --color-kaza-terracotta: var(--kaza-terracotta);
+  --color-kaza-line: var(--kaza-line);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--kaza-cream);
+  color: var(--kaza-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+::selection {
+  background: var(--kaza-ocre);
+  color: var(--kaza-cream);
+}
+
+.kaza-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.kaza-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--kaza-line);
+  border-radius: 999px;
 }
