@@ -1,58 +1,74 @@
 import type { SourceResult, RawSignal } from "@/types/trend";
 
-const URL =
-  "https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list?page=1&limit=20&period=7&country_code=FR&sort_by=popular";
+const URL = "https://ads.tiktok.com/CreativeOne/KnowledgeAPI/GetHashtagList";
 
-interface TiktokHashtag {
-  hashtag_name?: string;
-  publish_cnt?: number;
-  video_views?: number;
-  rank?: number;
+interface TiktokHashtagItem {
+  hashtagName?: string;
+  publishCnt?: number;
+  vv?: number;
+  rankIndex?: number;
 }
 
 interface TiktokResponse {
-  code?: number;
-  msg?: string;
-  data?: { list?: TiktokHashtag[] };
+  BaseResp?: { StatusCode?: number; StatusMessage?: string };
+  items?: TiktokHashtagItem[];
 }
 
 /**
  * Source fragile : TikTok Creative Center n'est pas une API publique
- * documentée et peut casser (auth, structure, blocage géo) sans préavis.
+ * documentée. L'ancien endpoint (creative_radar_api) a été remplacé par
+ * CreativeOne/KnowledgeAPI/GetHashtagList, qui exige une session
+ * connectée (cookie TIKTOK_COOKIE d'un compte Creative Center/Ads).
+ * Le cookie expire périodiquement et doit être renouvelé manuellement.
  * Toujours échouer silencieusement vers le reste de l'agrégation.
  */
 export async function fetchTiktok(): Promise<SourceResult> {
   const fetchedAt = new Date().toISOString();
   try {
+    const cookie = process.env.TIKTOK_COOKIE;
+    if (!cookie) {
+      throw new Error("TIKTOK_COOKIE manquante");
+    }
+
     const res = await fetch(URL, {
+      method: "POST",
       headers: {
+        "Content-Type": "application/json",
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-        Referer: "https://ads.tiktok.com/business/creativecenter/",
-        Accept: "application/json",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+        Referer:
+          "https://ads.tiktok.com/creative/creativeCenter/trends/hashtag?region=FR&period=7",
+        Cookie: cookie,
       },
+      body: JSON.stringify({
+        timeRange: 7,
+        countryCode: "FR",
+        page: 1,
+        limit: 20,
+      }),
       cache: "no-store",
     });
+
     if (!res.ok) {
       throw new Error(`TikTok HTTP ${res.status}`);
     }
     const parsed: TiktokResponse = await res.json();
-    if (parsed.code !== undefined && parsed.code !== 0) {
-      throw new Error(parsed.msg ?? `TikTok API code ${parsed.code}`);
+    if (parsed.BaseResp?.StatusCode) {
+      throw new Error(
+        parsed.BaseResp.StatusMessage || `TikTok API code ${parsed.BaseResp.StatusCode}`
+      );
     }
-    const list = parsed.data?.list ?? [];
 
-    const signals: RawSignal[] = list
-      .filter((item) => item.hashtag_name)
+    const signals: RawSignal[] = (parsed.items ?? [])
+      .filter((item) => item.hashtagName)
       .map((item) => {
         const parts: string[] = [];
-        if (item.video_views)
-          parts.push(`${item.video_views.toLocaleString("fr-FR")} vues`);
-        if (item.publish_cnt)
-          parts.push(`${item.publish_cnt.toLocaleString("fr-FR")} publications`);
+        if (item.vv) parts.push(`${item.vv.toLocaleString("fr-FR")} vues`);
+        if (item.publishCnt)
+          parts.push(`${item.publishCnt.toLocaleString("fr-FR")} publications`);
         return {
           source: "tiktok" as const,
-          titre: `#${item.hashtag_name}`,
+          titre: `#${item.hashtagName}`,
           metrique: parts.join(" · ") || undefined,
         };
       });
