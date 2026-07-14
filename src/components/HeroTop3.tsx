@@ -19,7 +19,7 @@ export default function HeroTop3({
 
   return (
     <section>
-      <h2 className="font-display italic text-3xl mb-6">À surfer maintenant</h2>
+      <h2 className="font-display font-bold text-3xl mb-6">À surfer maintenant</h2>
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <SkeletonCard />

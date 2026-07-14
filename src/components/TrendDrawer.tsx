@@ -116,7 +116,7 @@ export default function TrendDrawer({
               <RiskBadge risque={trend.risque} />
             </div>
 
-            <h2 className="font-display text-3xl leading-tight mb-2">
+            <h2 className="font-display font-bold text-3xl leading-tight mb-2">
               {trend.titre}
             </h2>
             <p className="text-sm text-kaza-ink-soft mb-8">

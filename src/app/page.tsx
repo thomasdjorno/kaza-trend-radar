@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { Categorie, ScoredTrend, SourceName, TrendCollection } from "@/types/trend";
+import KazaLogo from "@/components/KazaLogo";
 import HeroTop3 from "@/components/HeroTop3";
 import TrendListRow from "@/components/TrendListRow";
 import TrendDrawer from "@/components/TrendDrawer";
@@ -51,11 +52,10 @@ export default function Home() {
     <div className="flex-1 flex flex-col">
       <header className="border-b border-kaza-line bg-kaza-cream-deep/60">
         <div className="max-w-6xl mx-auto px-6 py-6 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="uppercase tracking-[0.3em] text-xs text-kaza-terracotta font-semibold mb-1">
-              Maison KAZA
-            </p>
-            <h1 className="font-display text-3xl italic">Trend Radar</h1>
+          <div className="flex items-center gap-4">
+            <KazaLogo className="h-11" />
+            <div className="h-8 w-px bg-kaza-line" />
+            <h1 className="font-display font-bold text-2xl">Trend Radar</h1>
           </div>
           <div className="flex items-center gap-6">
             <Link
@@ -96,7 +96,7 @@ export default function Home() {
 
         <section>
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-            <h2 className="font-display italic text-3xl">Classement complet</h2>
+            <h2 className="font-display font-bold text-3xl">Classement complet</h2>
             <SourceFilter
               categorie={categorie}
               onCategorieChange={setCategorie}

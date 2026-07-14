@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { TrendCollection } from "@/types/trend";
+import KazaLogo from "@/components/KazaLogo";
 import ScoreBadge from "@/components/ScoreBadge";
 import { sourceLabel } from "@/lib/sourceLabels";
 import { SkeletonBlock } from "@/components/Skeleton";
@@ -48,11 +49,10 @@ export default function HistoriquePage() {
     <div className="flex-1 flex flex-col">
       <header className="border-b border-kaza-line bg-kaza-cream-deep/60">
         <div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between gap-4">
-          <div>
-            <p className="uppercase tracking-[0.3em] text-xs text-kaza-terracotta font-semibold mb-1">
-              Maison KAZA
-            </p>
-            <h1 className="font-display text-3xl italic">Historique</h1>
+          <div className="flex items-center gap-4">
+            <KazaLogo className="h-11" />
+            <div className="h-8 w-px bg-kaza-line" />
+            <h1 className="font-display font-bold text-2xl">Historique</h1>
           </div>
           <Link
             href="/"
@@ -80,7 +80,7 @@ export default function HistoriquePage() {
 
         {history?.map(({ day, collections }) => (
           <section key={day}>
-            <h2 className="font-display text-xl italic mb-4 capitalize">
+            <h2 className="font-display font-bold text-xl mb-4 capitalize">
               {formatDay(day)}
             </h2>
             <div className="space-y-3">

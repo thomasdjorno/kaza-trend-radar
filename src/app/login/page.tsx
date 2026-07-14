@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import KazaLogo from "@/components/KazaLogo";
 
 function LoginForm() {
   const router = useRouter();
@@ -36,11 +37,9 @@ function LoginForm() {
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
-        <div className="text-center mb-10">
-          <p className="uppercase tracking-[0.3em] text-xs text-kaza-terracotta font-semibold mb-3">
-            Maison KAZA
-          </p>
-          <h1 className="font-display text-4xl italic">Trend Radar</h1>
+        <div className="text-center mb-10 flex flex-col items-center">
+          <KazaLogo className="h-16 mb-5" />
+          <h1 className="font-display font-bold text-3xl">Trend Radar</h1>
         </div>
         <form
           onSubmit={handleSubmit}

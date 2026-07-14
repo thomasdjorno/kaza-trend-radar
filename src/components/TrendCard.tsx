@@ -18,7 +18,7 @@ export default function TrendCard({
       onClick={onClick}
       className="group relative text-left flex flex-col justify-between rounded-3xl border border-kaza-line bg-white/70 p-8 min-h-[320px] overflow-hidden transition-all hover:border-kaza-ink hover:-translate-y-1 hover:shadow-lg"
     >
-      <span className="pointer-events-none absolute -top-6 -right-2 font-display text-[9rem] leading-none text-kaza-ink/[0.05] select-none">
+      <span className="pointer-events-none absolute -top-6 -right-2 font-display font-extrabold text-[9rem] leading-none text-kaza-ink/[0.06] select-none">
         {String(index + 1).padStart(2, "0")}
       </span>
 
@@ -29,7 +29,7 @@ export default function TrendCard({
           </span>
           <ScoreBadge score={trend.score_kaza} categorie={trend.categorie} />
         </div>
-        <h3 className="font-display text-2xl leading-snug mb-3 group-hover:text-kaza-rouge transition-colors">
+        <h3 className="font-display font-bold text-2xl leading-snug mb-3 group-hover:text-kaza-rouge transition-colors">
           {trend.titre}
         </h3>
         <p className="text-sm text-kaza-ink-soft leading-relaxed">

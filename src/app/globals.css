@@ -1,20 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --kaza-cream: #f8f1e4;
-  --kaza-cream-deep: #f0e6d2;
-  --kaza-ink: #241c14;
-  --kaza-ink-soft: #5a4f40;
-  --kaza-rouge: #a8311f;
+  --kaza-cream: #faf4db;
+  --kaza-cream-deep: #f8efc9;
+  --kaza-tan: #ede2b6;
+  --kaza-ink: #7b2019;
+  --kaza-ink-soft: #9c5148;
+  --kaza-rouge: #de342b;
   --kaza-ocre: #c98a2c;
   --kaza-vert: #4a6b3a;
-  --kaza-terracotta: #bc5a34;
-  --kaza-line: #e2d5bd;
+  --kaza-terracotta: #a6362b;
+  --kaza-line: #e6d9ab;
 }
 
 @theme inline {
   --color-kaza-cream: var(--kaza-cream);
   --color-kaza-cream-deep: var(--kaza-cream-deep);
+  --color-kaza-tan: var(--kaza-tan);
   --color-kaza-ink: var(--kaza-ink);
   --color-kaza-ink-soft: var(--kaza-ink-soft);
   --color-kaza-rouge: var(--kaza-rouge);
@@ -33,11 +35,12 @@ body {
 }
 
 .font-display {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  letter-spacing: -0.01em;
 }
 
 ::selection {
-  background: var(--kaza-ocre);
+  background: var(--kaza-rouge);
   color: var(--kaza-cream);
 }
 
