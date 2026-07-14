@@ -1,18 +1,10 @@
 import type { SourceResult, RawSignal } from "@/types/trend";
 
-const URL =
-  "https://trends.google.com/trends/api/dailytrends?hl=fr&geo=FR&ns=15";
+const URL = "https://trends.google.com/trending/rss?geo=FR";
 
-interface GoogleTrendItem {
-  title?: { query?: string };
-  formattedTraffic?: string;
-  articles?: Array<{ title?: string }>;
-}
-
-interface GoogleTrendDay {
-  trendingSearchesDays?: Array<{
-    trendingSearches?: GoogleTrendItem[];
-  }>;
+function extractTag(block: string, tag: string): string | undefined {
+  const match = block.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
+  return match?.[1]?.trim();
 }
 
 export async function fetchGoogleTrends(): Promise<SourceResult> {
@@ -25,23 +17,16 @@ export async function fetchGoogleTrends(): Promise<SourceResult> {
     if (!res.ok) {
       throw new Error(`Google Trends HTTP ${res.status}`);
     }
-    const raw = await res.text();
-    const cleaned = raw.replace(/^\)\]\}',?\n?/, "");
-    const parsed: GoogleTrendDay = JSON.parse(cleaned);
-
-    const items =
-      parsed.trendingSearchesDays?.flatMap(
-        (day) => day.trendingSearches ?? []
-      ) ?? [];
+    const xml = await res.text();
+    const items = xml.match(/<item>[\s\S]*?<\/item>/g) ?? [];
 
     const signals: RawSignal[] = items
-      .filter((item) => item.title?.query)
-      .map((item) => ({
+      .map((block) => ({
         source: "google_trends" as const,
-        titre: item.title!.query!,
-        metrique: item.formattedTraffic ?? undefined,
-        extrait: item.articles?.[0]?.title ?? undefined,
-      }));
+        titre: extractTag(block, "title") ?? "",
+        metrique: extractTag(block, "ht:approx_traffic"),
+      }))
+      .filter((signal) => signal.titre);
 
     return { source: "google_trends", ok: true, signals, fetchedAt };
   } catch (err) {
