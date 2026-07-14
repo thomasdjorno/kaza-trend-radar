@@ -11,6 +11,8 @@ interface TiktokHashtag {
 }
 
 interface TiktokResponse {
+  code?: number;
+  msg?: string;
   data?: { list?: TiktokHashtag[] };
 }
 
@@ -35,6 +37,9 @@ export async function fetchTiktok(): Promise<SourceResult> {
       throw new Error(`TikTok HTTP ${res.status}`);
     }
     const parsed: TiktokResponse = await res.json();
+    if (parsed.code !== undefined && parsed.code !== 0) {
+      throw new Error(parsed.msg ?? `TikTok API code ${parsed.code}`);
+    }
     const list = parsed.data?.list ?? [];
 
     const signals: RawSignal[] = list
