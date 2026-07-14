@@ -9,7 +9,9 @@ export interface KeyValueStore {
   list(): Promise<string[]>;
 }
 
-const isNetlify = Boolean(process.env.NETLIFY);
+const NETLIFY_SITE_ID = process.env.NETLIFY_SITE_ID;
+const NETLIFY_BLOBS_TOKEN = process.env.NETLIFY_BLOBS_TOKEN;
+const hasExplicitNetlifyConfig = Boolean(NETLIFY_SITE_ID && NETLIFY_BLOBS_TOKEN);
 
 function fileStore(namespace: string): KeyValueStore {
   const dir = path.join(process.cwd(), "data", namespace);
@@ -49,12 +51,20 @@ function fileStore(namespace: string): KeyValueStore {
 }
 
 /**
- * Les fonctions serverless Netlify n'ont pas de disque persistant :
- * on bascule sur Netlify Blobs (store clé-valeur managé) quand l'app
- * tourne sur Netlify (variable d'environnement NETLIFY injectée par leur plateforme).
+ * Les fonctions serverless Netlify n'ont pas de disque persistant.
+ * La détection automatique du contexte Netlify Blobs (via variables
+ * injectées par leur plateforme) ne se propage pas de façon fiable
+ * jusqu'aux route handlers Next.js sur Netlify — on configure donc le
+ * store explicitement avec NETLIFY_SITE_ID + NETLIFY_BLOBS_TOKEN.
  */
 function blobsStore(namespace: string): KeyValueStore {
-  const store = getStore(namespace);
+  const store = hasExplicitNetlifyConfig
+    ? getStore({
+        name: namespace,
+        siteID: NETLIFY_SITE_ID!,
+        token: NETLIFY_BLOBS_TOKEN!,
+      })
+    : getStore(namespace);
 
   return {
     async get<T>(key: string) {
@@ -75,5 +85,6 @@ function blobsStore(namespace: string): KeyValueStore {
 }
 
 export function getKeyValueStore(namespace: string): KeyValueStore {
+  const isNetlify = hasExplicitNetlifyConfig || Boolean(process.env.NETLIFY);
   return isNetlify ? blobsStore(namespace) : fileStore(namespace);
 }
