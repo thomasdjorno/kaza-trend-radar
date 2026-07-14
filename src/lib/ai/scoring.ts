@@ -60,7 +60,7 @@ export async function scoreTrends(signals: RawSignal[]): Promise<ScoredTrend[]> 
   const client = getAnthropicClient();
   const message = await client.messages.create({
     model: CLAUDE_MODEL,
-    max_tokens: 4000,
+    max_tokens: 6000,
     system: SYSTEM_PROMPT,
     messages: [{ role: "user", content: buildUserPrompt(signals) }],
   });
