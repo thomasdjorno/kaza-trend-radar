@@ -1,6 +1,8 @@
 import type { SourceResult, RawSignal } from "@/types/trend";
 
-const URL = "https://www.reddit.com/r/france/hot.json?limit=25";
+const TOKEN_URL = "https://www.reddit.com/api/v1/access_token";
+const API_URL = "https://oauth.reddit.com/r/france/hot?limit=25";
+const USER_AGENT = "web:kaza-trend-radar:v1.0 (by /u/thomasdjorno)";
 
 interface RedditChild {
   data?: {
@@ -16,12 +18,59 @@ interface RedditResponse {
   data?: { children?: RedditChild[] };
 }
 
+let cachedToken: { value: string; expiresAt: number } | null = null;
+
+/**
+ * Le endpoint public www.reddit.com/*.json est massivement bloqué (403)
+ * depuis les IP de data-centers, peu importe le User-Agent. L'API OAuth
+ * officielle (client_credentials, lecture seule) reste fiable.
+ */
+async function getAccessToken(): Promise<string> {
+  if (cachedToken && cachedToken.expiresAt > Date.now()) {
+    return cachedToken.value;
+  }
+
+  const clientId = process.env.REDDIT_CLIENT_ID;
+  const clientSecret = process.env.REDDIT_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    throw new Error("REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET manquantes");
+  }
+
+  const res = await fetch(TOKEN_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": USER_AGENT,
+    },
+    body: "grant_type=client_credentials",
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error(`Reddit OAuth HTTP ${res.status}`);
+  }
+
+  const data: { access_token?: string; expires_in?: number } = await res.json();
+  if (!data.access_token) {
+    throw new Error("Reddit OAuth : pas de token dans la réponse");
+  }
+
+  cachedToken = {
+    value: data.access_token,
+    expiresAt: Date.now() + (data.expires_in ?? 3600) * 1000 - 60_000,
+  };
+  return cachedToken.value;
+}
+
 export async function fetchReddit(): Promise<SourceResult> {
   const fetchedAt = new Date().toISOString();
   try {
-    const res = await fetch(URL, {
+    const token = await getAccessToken();
+    const res = await fetch(API_URL, {
       headers: {
-        "User-Agent": "KazaTrendRadar/1.0 (veille tendances Maison KAZA)",
+        Authorization: `Bearer ${token}`,
+        "User-Agent": USER_AGENT,
       },
       cache: "no-store",
     });
