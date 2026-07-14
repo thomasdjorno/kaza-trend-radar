@@ -1,6 +1,6 @@
 "use client";
 
-import type { Categorie, SourceName } from "@/types/trend";
+import type { Categorie, SourceName, TypeTendance } from "@/types/trend";
 import { SOURCE_LABELS } from "@/lib/sourceLabels";
 
 const CATEGORIES: Array<{ value: Categorie | "all"; label: string }> = [
@@ -16,6 +16,15 @@ const SOURCES: Array<{ value: SourceName | "all"; label: string }> = [
     value: s,
     label: SOURCE_LABELS[s],
   })),
+];
+
+const TYPES: Array<{ value: TypeTendance | "all"; label: string }> = [
+  { value: "all", label: "Tous types" },
+  { value: "actualite", label: "Actu" },
+  { value: "format_viral", label: "Format viral" },
+  { value: "musique_son", label: "Son qui buzz" },
+  { value: "produit_objet", label: "Objet viral" },
+  { value: "autre", label: "Autre" },
 ];
 
 function Pill({
@@ -47,11 +56,15 @@ export default function SourceFilter({
   onCategorieChange,
   source,
   onSourceChange,
+  type,
+  onTypeChange,
 }: {
   categorie: Categorie | "all";
   onCategorieChange: (c: Categorie | "all") => void;
   source: SourceName | "all";
   onSourceChange: (s: SourceName | "all") => void;
+  type: TypeTendance | "all";
+  onTypeChange: (t: TypeTendance | "all") => void;
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -63,6 +76,17 @@ export default function SourceFilter({
             onClick={() => onCategorieChange(c.value)}
           >
             {c.label}
+          </Pill>
+        ))}
+      </div>
+      <div className="flex gap-2 overflow-x-auto kaza-scrollbar pb-1">
+        {TYPES.map((t) => (
+          <Pill
+            key={t.value}
+            active={type === t.value}
+            onClick={() => onTypeChange(t.value)}
+          >
+            {t.label}
           </Pill>
         ))}
       </div>

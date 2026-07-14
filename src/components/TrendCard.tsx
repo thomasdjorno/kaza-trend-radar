@@ -1,6 +1,7 @@
 import type { ScoredTrend } from "@/types/trend";
 import ScoreBadge from "./ScoreBadge";
 import RiskBadge from "./RiskBadge";
+import TypeBadge from "./TypeBadge";
 import { sourceLabel } from "@/lib/sourceLabels";
 
 export default function TrendCard({
@@ -24,9 +25,12 @@ export default function TrendCard({
 
       <div className="relative">
         <div className="flex items-center justify-between mb-6">
-          <span className="text-xs font-semibold uppercase tracking-widest text-kaza-terracotta">
-            {sourceLabel(trend.source)}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-widest text-kaza-terracotta">
+              {sourceLabel(trend.source)}
+            </span>
+            <TypeBadge type={trend.type_tendance} />
+          </div>
           <ScoreBadge score={trend.score_kaza} categorie={trend.categorie} />
         </div>
         <h3 className="font-display font-bold text-2xl leading-snug mb-3 group-hover:text-kaza-rouge transition-colors">

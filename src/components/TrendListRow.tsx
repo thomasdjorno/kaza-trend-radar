@@ -1,5 +1,6 @@
 import type { ScoredTrend } from "@/types/trend";
 import ScoreBadge from "./ScoreBadge";
+import TypeBadge from "./TypeBadge";
 import { sourceLabel } from "@/lib/sourceLabels";
 
 const CATEGORIE_LABEL: Record<ScoredTrend["categorie"], string> = {
@@ -28,6 +29,9 @@ export default function TrendListRow({
           {trend.angle_kaza}
         </p>
       </div>
+      <span className="hidden md:inline">
+        <TypeBadge type={trend.type_tendance} />
+      </span>
       <span className="hidden sm:inline text-xs text-kaza-ink-soft whitespace-nowrap">
         {sourceLabel(trend.source)}
       </span>

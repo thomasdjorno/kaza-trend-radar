@@ -18,6 +18,12 @@ export interface SourceResult {
 
 export type Categorie = "surfer_maintenant" | "a_surveiller" | "ignorer";
 export type Risque = "faible" | "moyen" | "eleve";
+export type TypeTendance =
+  | "actualite"
+  | "format_viral"
+  | "musique_son"
+  | "produit_objet"
+  | "autre";
 
 export interface ScoredTrend {
   id: string;
@@ -25,6 +31,7 @@ export interface ScoredTrend {
   source: SourceName | string;
   score_kaza: number;
   categorie: Categorie;
+  type_tendance: TypeTendance;
   resume: string;
   fenetre: string;
   angle_kaza: string;

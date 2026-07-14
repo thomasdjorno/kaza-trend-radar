@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { ScoredTrend, TrendDetail, VideoPrompts } from "@/types/trend";
 import ScoreBadge from "./ScoreBadge";
 import RiskBadge from "./RiskBadge";
+import TypeBadge from "./TypeBadge";
 import CopyButton from "./CopyButton";
 import { SkeletonBlock } from "./Skeleton";
 import { sourceLabel } from "@/lib/sourceLabels";
@@ -108,10 +109,11 @@ export default function TrendDrawer({
               ← Fermer
             </button>
 
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
               <span className="text-xs font-semibold uppercase tracking-widest text-kaza-terracotta">
                 {sourceLabel(trend.source)}
               </span>
+              <TypeBadge type={trend.type_tendance} />
               <ScoreBadge score={trend.score_kaza} categorie={trend.categorie} />
               <RiskBadge risque={trend.risque} />
             </div>

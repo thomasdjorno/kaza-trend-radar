@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type { Categorie, ScoredTrend, SourceName, TrendCollection } from "@/types/trend";
+import type {
+  Categorie,
+  ScoredTrend,
+  SourceName,
+  TrendCollection,
+  TypeTendance,
+} from "@/types/trend";
 import KazaLogo from "@/components/KazaLogo";
 import HeroTop3 from "@/components/HeroTop3";
 import TrendListRow from "@/components/TrendListRow";
@@ -19,6 +25,7 @@ export default function Home() {
   const [selected, setSelected] = useState<ScoredTrend | null>(null);
   const [categorie, setCategorie] = useState<Categorie | "all">("all");
   const [source, setSource] = useState<SourceName | "all">("all");
+  const [type, setType] = useState<TypeTendance | "all">("all");
 
   async function load(force = false) {
     setLoading(true);
@@ -45,8 +52,9 @@ export default function Home() {
     return collection.trends
       .filter((t) => categorie === "all" || t.categorie === categorie)
       .filter((t) => source === "all" || t.source === source)
+      .filter((t) => type === "all" || t.type_tendance === type)
       .sort((a, b) => b.score_kaza - a.score_kaza);
-  }, [collection, categorie, source]);
+  }, [collection, categorie, source, type]);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -102,6 +110,8 @@ export default function Home() {
               onCategorieChange={setCategorie}
               source={source}
               onSourceChange={setSource}
+              type={type}
+              onTypeChange={setType}
             />
           </div>
 

@@ -5,11 +5,20 @@ const BASE_URL = "https://www.googleapis.com/youtube/v3/videos";
 interface YoutubeItem {
   snippet?: { title?: string; channelTitle?: string };
   statistics?: { viewCount?: string };
+  contentDetails?: { duration?: string };
 }
 
 interface YoutubeResponse {
   items?: YoutubeItem[];
   error?: { message?: string };
+}
+
+function parseIsoDurationSeconds(duration?: string): number | null {
+  if (!duration) return null;
+  const match = duration.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
+  if (!match) return null;
+  const [, h, m, s] = match;
+  return (Number(h) || 0) * 3600 + (Number(m) || 0) * 60 + (Number(s) || 0);
 }
 
 export async function fetchYoutube(): Promise<SourceResult> {
@@ -28,7 +37,7 @@ export async function fetchYoutube(): Promise<SourceResult> {
 
   try {
     const params = new URLSearchParams({
-      part: "snippet,statistics",
+      part: "snippet,statistics,contentDetails",
       chart: "mostPopular",
       regionCode: "FR",
       maxResults: "25",
@@ -44,14 +53,23 @@ export async function fetchYoutube(): Promise<SourceResult> {
 
     const signals: RawSignal[] = (parsed.items ?? [])
       .filter((item) => item.snippet?.title)
-      .map((item) => ({
-        source: "youtube" as const,
-        titre: item.snippet!.title!,
-        metrique: item.statistics?.viewCount
-          ? `${Number(item.statistics.viewCount).toLocaleString("fr-FR")} vues`
-          : undefined,
-        extrait: item.snippet?.channelTitle,
-      }));
+      .map((item) => {
+        const seconds = parseIsoDurationSeconds(item.contentDetails?.duration);
+        const isShort = seconds !== null && seconds <= 60;
+        const parts: string[] = [];
+        if (item.statistics?.viewCount) {
+          parts.push(
+            `${Number(item.statistics.viewCount).toLocaleString("fr-FR")} vues`
+          );
+        }
+        parts.push(isShort ? "format court (Short)" : "format long");
+        return {
+          source: "youtube" as const,
+          titre: item.snippet!.title!,
+          metrique: parts.join(" · "),
+          extrait: item.snippet?.channelTitle,
+        };
+      });
 
     return { source: "youtube", ok: true, signals, fetchedAt };
   } catch (err) {
